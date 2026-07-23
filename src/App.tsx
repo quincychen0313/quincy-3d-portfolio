@@ -1,4 +1,4 @@
-import quincyHomepage from './assets/quincy-homepage.jpeg';
+import quincyHomepage from './assets/quincy-homepage.png';
 import {
   motion,
   useScroll,
