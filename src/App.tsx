@@ -5,7 +5,7 @@ import {
   useTransform,
   type MotionValue,
 } from 'framer-motion';
-import { ArrowUpRight } from 'lucide-react';
+import { ArrowUpRight, Moon, Sun } from 'lucide-react';
 import {
   type ElementType,
   type PropsWithChildren,
@@ -143,7 +143,7 @@ function LiveProjectButton() {
   return (
     <a
       href="#projects"
-      className="group inline-flex shrink-0 items-center justify-center gap-2 rounded-full border-2 border-[#D7E2EA] px-8 py-3 text-sm font-medium uppercase tracking-widest text-[#D7E2EA] transition-colors duration-200 hover:bg-[#D7E2EA]/10 sm:px-10 sm:py-3.5 sm:text-base"
+      className="group inline-flex shrink-0 items-center justify-center gap-2 rounded-full border-2 theme-border px-8 py-3 text-sm font-medium uppercase tracking-widest theme-text transition-colors duration-200 hover:bg-current/10 sm:px-10 sm:py-3.5 sm:text-base"
     >
       Live Project
       <ArrowUpRight
@@ -154,11 +154,44 @@ function LiveProjectButton() {
   );
 }
 
+type Theme = 'dark' | 'light';
+
+function ThemeToggle({
+  theme,
+  onToggle,
+}: {
+  theme: Theme;
+  onToggle: () => void;
+}) {
+  const isLight = theme === 'light';
+
+  return (
+    <button
+      type="button"
+      onClick={onToggle}
+      aria-label={`Switch to ${isLight ? 'dark' : 'light'} mode`}
+      aria-pressed={isLight}
+      className="theme-toggle fixed right-5 top-20 z-50 sm:right-8 sm:top-24"
+    >
+      <span className="theme-toggle__sun" aria-hidden="true">
+        <Sun size={23} strokeWidth={2.4} />
+      </span>
+      <span
+        className="theme-toggle__thumb"
+        data-light={isLight ? 'true' : 'false'}
+        aria-hidden="true"
+      >
+        {isLight ? <Sun size={22} /> : <Moon size={21} />}
+      </span>
+    </button>
+  );
+}
+
 function HeroSection() {
   return (
-    <section className="relative flex h-screen min-h-[650px] flex-col overflow-x-clip bg-[#0C0C0C]">
+    <section className="relative flex h-screen min-h-[650px] flex-col overflow-x-clip theme-bg">
       <FadeIn as="nav" delay={0} y={-20} className="relative z-30">
-        <div className="flex items-center justify-between px-6 pt-6 text-sm font-medium uppercase tracking-wider text-[#D7E2EA] md:px-10 md:pt-8 md:text-lg lg:text-[1.4rem]">
+        <div className="flex items-center justify-between px-6 pt-6 text-sm font-medium uppercase tracking-wider theme-text md:px-10 md:pt-8 md:text-lg lg:text-[1.4rem]">
           {[
             ['About', '#about'],
             ['Price', '#services'],
@@ -208,7 +241,7 @@ function HeroSection() {
       <div className="relative z-20 mt-auto flex items-end justify-between gap-5 px-6 pb-7 sm:pb-8 md:px-10 md:pb-10">
         <FadeIn delay={0.35} y={20}>
           <p
-            className="max-w-[160px] font-light uppercase leading-snug tracking-wide text-[#D7E2EA] sm:max-w-[220px] md:max-w-[260px]"
+            className="max-w-[160px] font-light uppercase leading-snug tracking-wide theme-text sm:max-w-[220px] md:max-w-[260px]"
             style={{ fontSize: 'clamp(0.75rem, 1.4vw, 1.5rem)' }}
           >
             a 3d creator driven by crafting striking and unforgettable projects
@@ -317,7 +350,7 @@ function MarqueeSection() {
     <section
       ref={sectionRef}
       aria-label="Selected motion work"
-      className="overflow-x-clip bg-[#0C0C0C] pb-10 pt-24 sm:pt-32 md:pt-40"
+      className="overflow-x-clip theme-bg pb-10 pt-24 sm:pt-32 md:pt-40"
     >
       <div className="flex flex-col gap-3">
         <MarqueeRow
@@ -377,7 +410,7 @@ function AnimatedText({ text }: { text: string }) {
     <p
       ref={paragraphRef}
       aria-label={text}
-      className="max-w-[560px] text-center font-medium leading-relaxed text-[#D7E2EA]"
+      className="max-w-[560px] text-center font-medium leading-relaxed theme-text"
       style={{ fontSize: 'clamp(1rem, 2vw, 1.35rem)' }}
     >
       {characters.map((character, index) => (
@@ -435,7 +468,7 @@ function AboutSection() {
   return (
     <section
       id="about"
-      className="relative flex min-h-screen items-center justify-center overflow-hidden bg-[#0C0C0C] px-5 py-20 sm:px-8 md:px-10"
+      className="relative flex min-h-screen items-center justify-center overflow-hidden theme-bg px-5 py-20 sm:px-8 md:px-10"
     >
       {aboutDecorations.map((item) => (
         <FadeIn
@@ -512,7 +545,7 @@ function ServicesSection() {
   return (
     <section
       id="services"
-      className="rounded-t-[40px] bg-white px-5 py-20 text-[#0C0C0C] sm:rounded-t-[50px] sm:px-8 sm:py-24 md:rounded-t-[60px] md:px-10 md:py-32"
+      className="rounded-t-[40px] theme-panel px-5 py-20 theme-panel-text sm:rounded-t-[50px] sm:px-8 sm:py-24 md:rounded-t-[60px] md:px-10 md:py-32"
     >
       <FadeIn>
         <h2
@@ -523,12 +556,12 @@ function ServicesSection() {
         </h2>
       </FadeIn>
 
-      <div className="mx-auto max-w-5xl border-t border-[rgba(12,12,12,0.15)]">
+      <div className="mx-auto max-w-5xl border-t theme-divider">
         {services.map((service, index) => (
           <FadeIn key={service.number} delay={index * 0.1}>
-            <article className="grid grid-cols-[auto_1fr] gap-5 border-b border-[rgba(12,12,12,0.15)] py-8 sm:gap-10 sm:py-10 md:gap-16 md:py-12">
+            <article className="grid grid-cols-[auto_1fr] gap-5 border-b theme-divider py-8 sm:gap-10 sm:py-10 md:gap-16 md:py-12">
               <span
-                className="font-black leading-none text-[#0C0C0C]"
+                className="font-black leading-none theme-panel-text"
                 style={{ fontSize: 'clamp(3rem, 10vw, 140px)' }}
               >
                 {service.number}
@@ -620,23 +653,23 @@ function ProjectCard({
   return (
     <div ref={cardContainerRef} className="h-[85vh]">
       <motion.article
-        className="sticky overflow-hidden rounded-[40px] border-2 border-[#D7E2EA] bg-[#0C0C0C] p-4 sm:rounded-[50px] sm:p-6 md:rounded-[60px] md:p-8"
+        className="sticky overflow-hidden rounded-[40px] border-2 theme-border theme-bg p-4 sm:rounded-[50px] sm:p-6 md:rounded-[60px] md:p-8"
         style={{ scale, top, transformOrigin: 'top center' }}
       >
         <div className="mb-5 flex flex-wrap items-end justify-between gap-5 sm:mb-7 md:mb-8">
           <div className="flex min-w-0 flex-1 items-end gap-4 sm:gap-7 md:gap-10">
             <span
-              className="shrink-0 font-black leading-[0.72] text-[#D7E2EA]"
+              className="shrink-0 font-black leading-[0.72] theme-text"
               style={{ fontSize: 'clamp(3rem, 10vw, 140px)' }}
             >
               {project.number}
             </span>
             <div className="min-w-0 pb-0.5 sm:pb-2">
-              <p className="mb-1 text-xs font-light uppercase tracking-[0.25em] text-[#D7E2EA]/60 sm:text-sm">
+              <p className="mb-1 text-xs font-light uppercase tracking-[0.25em] theme-muted sm:text-sm">
                 {project.category}
               </p>
               <h3
-                className="truncate font-medium uppercase leading-tight text-[#D7E2EA]"
+                className="truncate font-medium uppercase leading-tight theme-text"
                 style={{ fontSize: 'clamp(1rem, 2.2vw, 2.1rem)' }}
               >
                 {project.name}
@@ -679,7 +712,7 @@ function ProjectsSection() {
   return (
     <section
       id="projects"
-      className="relative z-10 -mt-10 rounded-t-[40px] bg-[#0C0C0C] px-5 pb-24 pt-20 sm:-mt-12 sm:rounded-t-[50px] sm:px-8 sm:pb-32 sm:pt-24 md:-mt-14 md:rounded-t-[60px] md:px-10 md:pb-40 md:pt-32"
+      className="relative z-10 -mt-10 rounded-t-[40px] theme-bg px-5 pb-24 pt-20 sm:-mt-12 sm:rounded-t-[50px] sm:px-8 sm:pb-32 sm:pt-24 md:-mt-14 md:rounded-t-[60px] md:px-10 md:pb-40 md:pt-32"
     >
       <FadeIn>
         <h2
@@ -706,7 +739,7 @@ function ProjectsSection() {
         className="flex min-h-[45vh] flex-col items-center justify-center gap-8 pt-20 text-center"
       >
         <FadeIn>
-          <p className="text-sm font-medium uppercase tracking-[0.35em] text-[#D7E2EA]/60 sm:text-base">
+          <p className="text-sm font-medium uppercase tracking-[0.35em] theme-muted sm:text-base">
             Have a project in mind?
           </p>
           <h2
@@ -725,11 +758,31 @@ function ProjectsSection() {
 }
 
 function App() {
+  const [theme, setTheme] = useState<Theme>(() => {
+    const savedTheme = window.localStorage.getItem('quincy-theme');
+    if (savedTheme === 'light' || savedTheme === 'dark') return savedTheme;
+    return window.matchMedia('(prefers-color-scheme: light)').matches
+      ? 'light'
+      : 'dark';
+  });
+
+  useEffect(() => {
+    document.documentElement.dataset.theme = theme;
+    window.localStorage.setItem('quincy-theme', theme);
+  }, [theme]);
+
+  const toggleTheme = () => {
+    setTheme((currentTheme) =>
+      currentTheme === 'dark' ? 'light' : 'dark',
+    );
+  };
+
   return (
     <main
-      className="min-h-screen bg-[#0C0C0C] font-kanit"
+      className="min-h-screen theme-bg font-kanit"
       style={{ overflowX: 'clip' }}
     >
+      <ThemeToggle theme={theme} onToggle={toggleTheme} />
       <HeroSection />
       <MarqueeSection />
       <AboutSection />
