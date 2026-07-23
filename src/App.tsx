@@ -186,7 +186,7 @@ function HeroSection() {
         </h1>
       </FadeIn>
 
-      <div className="pointer-events-none absolute left-1/2 top-1/2 z-10 w-[470px] -translate-x-1/2 -translate-y-1/2 sm:bottom-[-4vh] sm:top-auto sm:w-[620px] sm:translate-y-0 md:w-[760px] lg:w-[940px] xl:w-[1080px]">
+      <div className="pointer-events-none absolute left-1/2 top-[64px] z-10 w-[520px] -translate-x-1/2 sm:top-[58px] sm:w-[700px] md:top-[38px] md:w-[860px] lg:w-[1080px] xl:w-[1240px]">
         <FadeIn delay={0.6} y={30}>
           <Magnet
             className="pointer-events-auto"
@@ -198,7 +198,7 @@ function HeroSection() {
             <img
               src={quincyHomepage}
               alt="Quincy Chen welcome portrait"
-              className="max-h-[108vh] w-full select-none rounded-[28px] object-contain shadow-2xl sm:rounded-[36px]"
+              className="max-h-[120vh] w-full select-none rounded-[28px] object-contain shadow-2xl sm:rounded-[36px]"
               draggable={false}
             />
           </Magnet>
