@@ -181,7 +181,7 @@ function HeroSection() {
         y={40}
         className="relative z-0 mt-6 w-full overflow-hidden sm:mt-4 md:-mt-5"
       >
-        <h1 className="hero-heading w-full whitespace-nowrap text-center text-[14vw] font-black uppercase leading-none tracking-tight sm:text-[15vw] md:text-[16vw] lg:text-[17.5vw]">
+        <h1 className="hero-heading w-full whitespace-nowrap px-2 text-center text-[clamp(2.6rem,10.8vw,11.5rem)] font-black uppercase leading-none tracking-[-0.045em] sm:px-4">
           Hi, i&apos;m quincy
         </h1>
       </FadeIn>
