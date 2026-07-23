@@ -1,0 +1,12 @@
+Quincy 3D Portfolio 上傳方式
+
+1. 將本資料夾中所有看得到的檔案與資料夾上傳到 GitHub repository。
+2. 不必處理隱藏的 .github 資料夾。
+3. 在 GitHub repository 點 Add file > Create new file。
+4. 檔名輸入：.github/workflows/deploy-pages.yml
+5. 打開 GITHUB_PAGES_WORKFLOW.txt，複製全部內容貼入。
+6. 點 Commit changes。
+7. 到 Settings > Pages，Source 選 GitHub Actions。
+
+網站網址：
+https://quincychen0313.github.io/quincy-3d-portfolio/
