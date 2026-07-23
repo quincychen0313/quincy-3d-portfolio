@@ -66,28 +66,49 @@ function Magnet({
   padding = 150,
   strength = 3,
   activeTransition = 'transform 0.3s ease-out',
-  inactiveTransition = 'transform 0.6s ease-in-out',
+  inactiveTransition =
+    'transform 0.75s cubic-bezier(0.34, 1.56, 0.64, 1)',
   children,
 }: MagnetProps) {
   const elementRef = useRef<HTMLDivElement>(null);
   const activeTouchPointer = useRef<number | null>(null);
+  const touchGeometry = useRef<{
+    centerX: number;
+    centerY: number;
+    width: number;
+    height: number;
+  } | null>(null);
   const [active, setActive] = useState(false);
+  const [touching, setTouching] = useState(false);
   const [transform, setTransform] = useState('translate3d(0, 0, 0)');
 
   const resetPosition = () => {
     setActive(false);
-    setTransform('translate3d(0, 0, 0)');
+    setTouching(false);
+    touchGeometry.current = null;
+    setTransform('translate3d(0, 0, 0) rotateX(0deg) rotateY(0deg) scale(1)');
   };
 
   const moveToPoint = (
     clientX: number,
     clientY: number,
     ignorePaddingCheck = false,
+    interaction: 'mouse' | 'touch' = 'mouse',
   ) => {
     const element = elementRef.current;
     if (!element) return;
 
     const rect = element.getBoundingClientRect();
+    const geometry =
+      interaction === 'touch' && touchGeometry.current
+        ? touchGeometry.current
+        : {
+            centerX: rect.left + rect.width / 2,
+            centerY: rect.top + rect.height / 2,
+            width: rect.width,
+            height: rect.height,
+          };
+
     const insideMagneticArea =
       ignorePaddingCheck ||
       (clientX >= rect.left - padding &&
@@ -100,11 +121,35 @@ function Magnet({
       return;
     }
 
-    const centerX = rect.left + rect.width / 2;
-    const centerY = rect.top + rect.height / 2;
-    const x = (clientX - centerX) / strength;
-    const y = (clientY - centerY) / strength;
+    const rawX = clientX - geometry.centerX;
+    const rawY = clientY - geometry.centerY;
 
+    if (interaction === 'touch') {
+      // Coarse pointers need a much stronger response than a mouse.
+      const touchStrength = 1.15;
+      const maxX = Math.min(170, geometry.width * 0.38);
+      const maxY = Math.min(130, geometry.height * 0.24);
+      const x = Math.max(-maxX, Math.min(maxX, rawX / touchStrength));
+      const y = Math.max(-maxY, Math.min(maxY, rawY / touchStrength));
+      const rotateY = Math.max(
+        -7.5,
+        Math.min(7.5, (rawX / Math.max(1, geometry.width)) * 22),
+      );
+      const rotateX = Math.max(
+        -6,
+        Math.min(6, (-rawY / Math.max(1, geometry.height)) * 18),
+      );
+
+      setActive(true);
+      setTouching(true);
+      setTransform(
+        `perspective(900px) translate3d(${x}px, ${y}px, 0) rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale(1.08)`,
+      );
+      return;
+    }
+
+    const x = rawX / strength;
+    const y = rawY / strength;
     setActive(true);
     setTransform(`translate3d(${x}px, ${y}px, 0)`);
   };
@@ -123,9 +168,16 @@ function Magnet({
   const handlePointerDown = (event: ReactPointerEvent<HTMLDivElement>) => {
     if (event.pointerType !== 'touch') return;
 
+    const rect = event.currentTarget.getBoundingClientRect();
+    touchGeometry.current = {
+      centerX: rect.left + rect.width / 2,
+      centerY: rect.top + rect.height / 2,
+      width: rect.width,
+      height: rect.height,
+    };
     activeTouchPointer.current = event.pointerId;
     event.currentTarget.setPointerCapture(event.pointerId);
-    moveToPoint(event.clientX, event.clientY, true);
+    moveToPoint(event.clientX, event.clientY, true, 'touch');
   };
 
   const handlePointerMove = (event: ReactPointerEvent<HTMLDivElement>) => {
@@ -136,7 +188,7 @@ function Magnet({
       return;
     }
 
-    moveToPoint(event.clientX, event.clientY, true);
+    moveToPoint(event.clientX, event.clientY, true, 'touch');
   };
 
   const finishTouchInteraction = (
@@ -155,13 +207,19 @@ function Magnet({
     <div
       ref={elementRef}
       className={className}
+      data-touching={touching ? 'true' : undefined}
       onPointerDown={handlePointerDown}
       onPointerMove={handlePointerMove}
       onPointerUp={finishTouchInteraction}
       onPointerCancel={finishTouchInteraction}
       style={{
         transform,
-        transition: active ? activeTransition : inactiveTransition,
+        transition: touching
+          ? 'transform 65ms linear'
+          : active
+            ? activeTransition
+            : inactiveTransition,
+        transformStyle: 'preserve-3d',
         willChange: 'transform',
         touchAction: 'pan-y',
         WebkitTapHighlightColor: 'transparent',
