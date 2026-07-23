@@ -1,3 +1,4 @@
+import quincyHomepage from './assets/quincy-homepage.jpeg';
 import {
   motion,
   useScroll,
@@ -195,9 +196,9 @@ function HeroSection() {
             inactiveTransition="transform 0.6s ease-in-out"
           >
             <img
-              src="https://shrug-person-78902957.figma.site/_components/v2/d24c01ad3a56fc65e942a1f501eb73db42d7cf9a/Rectangle_40443.81459862.png"
-              alt="Quincy, 3D creator"
-              className="h-auto w-full select-none object-contain"
+              src={quincyHomepage}
+              alt="Quincy Chen welcome portrait"
+              className="max-h-[72vh] w-full select-none rounded-[28px] object-contain shadow-2xl sm:rounded-[36px]"
               draggable={false}
             />
           </Magnet>
