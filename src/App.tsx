@@ -9,6 +9,7 @@ import { ArrowUpRight, Moon, Sun } from 'lucide-react';
 import {
   type ElementType,
   type PropsWithChildren,
+  type PointerEvent as ReactPointerEvent,
   useEffect,
   useMemo,
   useRef,
@@ -69,48 +70,101 @@ function Magnet({
   children,
 }: MagnetProps) {
   const elementRef = useRef<HTMLDivElement>(null);
+  const activeTouchPointer = useRef<number | null>(null);
   const [active, setActive] = useState(false);
   const [transform, setTransform] = useState('translate3d(0, 0, 0)');
 
+  const resetPosition = () => {
+    setActive(false);
+    setTransform('translate3d(0, 0, 0)');
+  };
+
+  const moveToPoint = (
+    clientX: number,
+    clientY: number,
+    ignorePaddingCheck = false,
+  ) => {
+    const element = elementRef.current;
+    if (!element) return;
+
+    const rect = element.getBoundingClientRect();
+    const insideMagneticArea =
+      ignorePaddingCheck ||
+      (clientX >= rect.left - padding &&
+        clientX <= rect.right + padding &&
+        clientY >= rect.top - padding &&
+        clientY <= rect.bottom + padding);
+
+    if (!insideMagneticArea) {
+      resetPosition();
+      return;
+    }
+
+    const centerX = rect.left + rect.width / 2;
+    const centerY = rect.top + rect.height / 2;
+    const x = (clientX - centerX) / strength;
+    const y = (clientY - centerY) / strength;
+
+    setActive(true);
+    setTransform(`translate3d(${x}px, ${y}px, 0)`);
+  };
+
   useEffect(() => {
     const handlePointerMove = (event: PointerEvent) => {
-      const element = elementRef.current;
-      if (!element) return;
-
-      const rect = element.getBoundingClientRect();
-      const insideMagneticArea =
-        event.clientX >= rect.left - padding &&
-        event.clientX <= rect.right + padding &&
-        event.clientY >= rect.top - padding &&
-        event.clientY <= rect.bottom + padding;
-
-      if (!insideMagneticArea) {
-        setActive(false);
-        setTransform('translate3d(0, 0, 0)');
-        return;
-      }
-
-      const centerX = rect.left + rect.width / 2;
-      const centerY = rect.top + rect.height / 2;
-      const x = (event.clientX - centerX) / strength;
-      const y = (event.clientY - centerY) / strength;
-
-      setActive(true);
-      setTransform(`translate3d(${x}px, ${y}px, 0)`);
+      if (activeTouchPointer.current !== null) return;
+      if (event.pointerType !== 'mouse' && event.pointerType !== 'pen') return;
+      moveToPoint(event.clientX, event.clientY);
     };
 
     window.addEventListener('pointermove', handlePointerMove, { passive: true });
     return () => window.removeEventListener('pointermove', handlePointerMove);
   }, [padding, strength]);
 
+  const handlePointerDown = (event: ReactPointerEvent<HTMLDivElement>) => {
+    if (event.pointerType !== 'touch') return;
+
+    activeTouchPointer.current = event.pointerId;
+    event.currentTarget.setPointerCapture(event.pointerId);
+    moveToPoint(event.clientX, event.clientY, true);
+  };
+
+  const handlePointerMove = (event: ReactPointerEvent<HTMLDivElement>) => {
+    if (
+      event.pointerType !== 'touch' ||
+      activeTouchPointer.current !== event.pointerId
+    ) {
+      return;
+    }
+
+    moveToPoint(event.clientX, event.clientY, true);
+  };
+
+  const finishTouchInteraction = (
+    event: ReactPointerEvent<HTMLDivElement>,
+  ) => {
+    if (activeTouchPointer.current !== event.pointerId) return;
+
+    if (event.currentTarget.hasPointerCapture(event.pointerId)) {
+      event.currentTarget.releasePointerCapture(event.pointerId);
+    }
+    activeTouchPointer.current = null;
+    resetPosition();
+  };
+
   return (
     <div
       ref={elementRef}
       className={className}
+      onPointerDown={handlePointerDown}
+      onPointerMove={handlePointerMove}
+      onPointerUp={finishTouchInteraction}
+      onPointerCancel={finishTouchInteraction}
       style={{
         transform,
         transition: active ? activeTransition : inactiveTransition,
         willChange: 'transform',
+        touchAction: 'pan-y',
+        WebkitTapHighlightColor: 'transparent',
       }}
     >
       {children}
@@ -222,7 +276,7 @@ function HeroSection() {
       <div className="pointer-events-none absolute left-1/2 top-1/2 z-10 w-[470px] -translate-x-1/2 -translate-y-1/2 sm:bottom-[-4vh] sm:top-auto sm:w-[620px] sm:translate-y-0 md:w-[760px] lg:w-[940px] xl:w-[1080px]">
         <FadeIn delay={0.6} y={30}>
           <Magnet
-            className="pointer-events-auto"
+            className="hero-portrait-magnet pointer-events-auto"
             padding={150}
             strength={3}
             activeTransition="transform 0.3s ease-out"
